@@ -1,0 +1,158 @@
+{
+  "fieldID": 1,
+  "length": 5,
+  "width": 5,
+  "total_count_of_mines": 3,
+  "points":[
+      {
+        "i": 0,
+        "j": 0,
+        "value": 0,
+        "is_open": true
+      },
+      {
+        "i": 0,
+        "j": 1,
+        "value": 0,
+        "is_open": true
+      },
+      {
+        "i": 0,
+        "j": 2,
+        "value": 1,
+        "is_open": true
+      },
+      {
+        "i": 0,
+        "j": 3,
+        "value": -1,
+        "is_open": false
+      },
+      {
+        "i": 0,
+        "j": 4,
+        "value": 2,
+        "is_open": false
+      },
+      {
+        "i": 1,
+        "j": 0,
+        "value": 0,
+        "is_open": true
+      },
+      {
+        "i": 1,
+        "j": 1,
+        "value": 0,
+        "is_open": true
+      },
+      {
+        "i": 1,
+        "j": 2,
+        "value": 1,
+        "is_open": true
+      },
+      {
+        "i": 1,
+        "j": 3,
+        "value": 2,
+        "is_open": true
+      },
+      {
+        "i": 1,
+        "j": 4,
+        "value": -1,
+        "is_open": false
+      },
+            {
+        "i": 2,
+        "j": 0,
+        "value": 1,
+        "is_open": true
+      },
+            {
+        "i": 2,
+        "j": 1,
+        "value": 1,
+        "is_open": true
+      },
+            {
+        "i": 2,
+        "j": 2,
+        "value": 0,
+        "is_open": true
+      },
+            {
+        "i": 2,
+        "j": 3,
+        "value": 1,
+        "is_open": true
+      },
+            {
+        "i": 2,
+        "j": 4,
+        "value": 1,
+        "is_open": true
+      },
+            {
+        "i": 3,
+        "j": 0,
+        "value": -1,
+        "is_open": false
+      },
+            {
+        "i": 3,
+        "j": 1,
+        "value": 1,
+        "is_open": true
+      },
+            {
+        "i": 3,
+        "j": 2,
+        "value": 0,
+        "is_open": true
+      },
+            {
+        "i": 3,
+        "j": 3,
+        "value": 0,
+        "is_open": true
+      },
+            {
+        "i": 3,
+        "j": 4,
+        "value": 0,
+        "is_open": true
+      },
+            {
+        "i": 4,
+        "j": 0,
+        "value": 1,
+        "is_open": false
+      },
+            {
+        "i": 4,
+        "j": 1,
+        "value": 1,
+        "is_open": true
+      },
+            {
+        "i": 4,
+        "j": 2,
+        "value": 0,
+        "is_open": true
+      },
+            {
+        "i": 4,
+        "j": 3,
+        "value": 0,
+        "is_open": true
+      },
+            {
+        "i": 4,
+        "j": 4,
+        "value": 0,
+        "is_open": true
+      }
+    ]
+}
