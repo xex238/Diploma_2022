@@ -2,6 +2,7 @@ import persistent
 import re
 import ZODB, ZODB.FileStorage
 import transaction
+import numpy as np
 
 class My_class:
     def __init__(self):
@@ -132,6 +133,40 @@ def method5():
     print(root.account1.balance)
 
     db.close()
+def method6():
+    s = np.zeros((3, 3))
+    ss = np.zeros(3)
+    ss[0] = 1
+    ss[2] = 1
+    s[0][0] = 1
+    s[2][2] = 1
+
+    print('s = ')
+    print(s)
+    print('ss = ')
+    print(ss)
+    print()
+
+    mas_helper = []
+    for i in range(len(ss)):
+        if(ss[i] == 1):
+            mas_helper.append(i)
+    for i in range(len(mas_helper)):
+        # del s[mas_helper[i]]
+        # del ss[mas_helper[i]]
+
+        s1 = np.delete(s, mas_helper, axis=0)
+        ss1 = np.delete(ss, mas_helper)
+
+        # _ = s.pop(mas_helper[i])
+        # _ = ss.pop(mas_helper[i])
+
+    print('s1 = ')
+    print(s1)
+    print('ss1 = ')
+    print(ss1)
+    print()
+
 
 # method1()
 # method2()
