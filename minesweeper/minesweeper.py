@@ -3,17 +3,19 @@ import copy
 import collections
 import math
 
-class minesweeper:
+class Minesweeper:
     def __init__(self):
         self.l = 5 # Количество строк
         self.w = 5 # Количество столбцов
-        # Значения клеток
-        self.values = [[0, 0, 1, -1, 0], [0, 0, 1, 2, -1], [1, 1, 0, 1, 1], [-1, 1, 0, 0, 0], [0, 1, 0, 0, 0]]
-        # Статус клеток
-        self.status = [[True, True, True, False, False], [True, True, True, True, False], [True, True, True, True, True], [False, True, True, True, True], [False, True, True, True, True]]
-        self.values_known = np.resize(self.values, self.l * self.w) # Известные значения
-        self.values_mas = np.resize(self.values, self.l * self.w) # Список значений
-        self.status_mas = np.resize(self.status, self.l * self.w) # Список статусов
+        self.count_of_mines = -1 # Количество мин на поле
+
+        self.true_values = [] # Значения клеток в виде матрицы
+        self.true_values_mas = [] # Список значений клеток
+
+        self.status = [] # Статус клеток в виде матрицы
+        self.status_mas = [] # Список статусов клеток
+
+        self.values_known = [] # Список известных значений клеток
 
         self.near_values = []
         self.near_values_known = []
@@ -24,6 +26,24 @@ class minesweeper:
         self.x = []
         self.y = []
 
+    def load_data(self):
+        self.l = 5 # Количество строк
+        self.w = 5 # Количество столбцов
+        self.count_of_mines = 3 # Количество мин на поле
+        # Значения клеток в виде матрицы
+        self.true_values = [[0, 0, 1, -1, 2], [0, 0, 1, 2, -1], [1, 1, 0, 1, 1], [-1, 1, 0, 0, 0], [1, 1, 0, 0, 0]]
+        self.true_values_mas = np.resize(self.true_values, self.l * self.w) # Список значений клеток
+        # Статус клеток в виде матрицы
+        self.status = [[True, True, True, False, False], [True, True, True, True, False], [True, True, True, True, True], [False, True, True, True, True], [False, True, True, True, True]]
+        self.status_mas = np.resize(self.status, self.l * self.w) # Список статусов клеток
+
+        self.values_known = np.resize(self.true_values, self.l * self.w) # Список известных значений клеток
+
+    def load_add_data(self):
+        self.true_values_mas = np.resize(self.true_values, self.l * self.w) # Список значений клеток
+        self.status_mas = np.resize(self.status, self.l * self.w) # Список статусов клеток
+        self.values_known = np.resize(self.true_values, self.l * self.w) # Список известных значений клеток
+
     def matrix_x(self):
         x = []
         for i in range(len(self.x)):
@@ -33,6 +53,9 @@ class minesweeper:
 
     def matrix_y(self):
         return np.resize(self.y, (self.l, self.w))
+
+    def matrix_values_known(self):
+        return np.resize(self.values_known, (self.l, self.w))
 
     # Перевести координаты в число
     def coords_to_number(self, coordinates):
@@ -115,6 +138,62 @@ class minesweeper:
 
         return result
 
+    # Получить список номеров соседних клеток по номеру
+    def get_near_values_on_number(self, number):
+        result = []
+        coords = self.number_to_coords(number)
+        if ((coords[0] == 0) and (coords[1] == 0)):
+            result.append(self.coords_to_number(coords[0], coords[1] + 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1] + 1))
+        elif ((coords[0] == 0) and ((coords[1] > 0) and (coords[1] < self.w - 1))):
+            result.append(self.coords_to_number(coords[0], coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1] + 1))
+            result.append(self.coords_to_number(coords[0], coords[1] + 1))
+        elif ((coords[0] == 0) and (coords[1] == self.w - 1)):
+            result.append(self.coords_to_number(coords[0], coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1]))
+        elif (((coords[0] > 0) and (coords[0] < self.l - 1)) and (coords[1] == self.w - 1)):
+            result.append(self.coords_to_number(coords[0] - 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1] - 1))
+            result.append(self.coords_to_number(coords[0], coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1]))
+        elif ((coords[0] == self.l - 1) and (coords[1] == self.w - 1)):
+            result.append(self.coords_to_number(coords[0] - 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1] - 1))
+            result.append(self.coords_to_number(coords[0], coords[1] - 1))
+        elif ((coords[0] == self.l - 1) and ((coords[1] > 0) and (coords[1] < self.w - 1))):
+            result.append(self.coords_to_number(coords[0], coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1] + 1))
+            result.append(self.coords_to_number(coords[0], coords[1] + 1))
+        elif ((coords[0] == self.l - 1) and (coords[1] == 0)):
+            result.append(self.coords_to_number(coords[0] - 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1] + 1))
+            result.append(self.coords_to_number(coords[0], coords[1] + 1))
+        elif (((coords[0] > 0) and (coords[0] < self.l - 1)) and (coords[1] == 0)):
+            result.append(self.coords_to_number(coords[0] - 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1] + 1))
+            result.append(self.coords_to_number(coords[0], coords[1] + 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1] + 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1]))
+        elif (((coords[0] > 0) and (coords[0] < self.l - 1)) and ((coords[1] > 0) and (coords[1] < self.w - 1))):
+            result.append(self.coords_to_number(coords[0] - 1, coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] - 1, coords[1] + 1))
+            result.append(self.coords_to_number(coords[0], coords[1] - 1))
+            result.append(self.coords_to_number(coords[0], coords[1] + 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1] - 1))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1]))
+            result.append(self.coords_to_number(coords[0] + 1, coords[1] + 1))
+
+        return result
+
     # Нумерация клеток поля
     def get_coords(self):
         for i in range(self.l):
@@ -157,7 +236,7 @@ class minesweeper:
 
         result1 = []
         for i in range(len(result)):
-            if(self.status[result[i][0]][result[i][1]] == False):
+            if((self.status[result[i][0]][result[i][1]] == False) and (self.values_known[self.coords_to_number(result[i])] != -1)):
                 result1.append(result[i])
         result2 = self.coords_list_to_numbers_list(result1)
 
@@ -170,7 +249,7 @@ class minesweeper:
     # Уменьшение системы уравнений
     def cutting(self):
         self.x = copy.copy(self.near_values_unknown)
-        self.y = copy.copy(self.values_mas)
+        self.y = copy.copy(self.true_values_mas)
 
         # Удаляем строки, где значение y[i] неизвестно (клетка закрыта)
         rows = []
@@ -197,14 +276,6 @@ class minesweeper:
 
         coordinates = copy.copy(coords2)
 
-        '''
-        print('x2 = ')
-        print(x2)
-        print('y2 = ')
-        print(y2)
-        print()
-        '''
-
         self.x = copy.copy(x2)
         self.y = copy.copy(y2)
 
@@ -215,10 +286,13 @@ class minesweeper:
         y1 = np.delete(self.y, mas_n)
         coords1 = np.delete(self.coordinates, mas_n)
 
-        coordinates = copy.copy(coords1)
-
+        self.coordinates = copy.copy(coords1)
         self.x = copy.copy(x1)
         self.y = copy.copy(y1)
+
+        # print('Удалено уравнение №', n)
+        # print(self.matrix_x())
+        # print(self.y)
 
     # Реализация метода 1
     def method1(self):
@@ -231,40 +305,64 @@ class minesweeper:
                 if(self.x[i][j] == 1):
                     helper_mas.append(j)
 
-            if(counter == self.y[i]):
+            if((self.y[i] == 0) and (len(helper_mas) == 0)):
+                # print('Путь 1')
+                changes = True
+                self.delete_equals(i)
+                break
+            elif((self.y[i] == 0) and (len(helper_mas) > 0)):
+                # print('Путь 2')
+                changes = True
+                for k in range(len(helper_mas)):
+                    self.values_known[helper_mas[k]] = self.true_values_mas[helper_mas[k]]
+                    self.status_mas[helper_mas[k]] = True
+                    self.status[self.number_to_coords(helper_mas[k])[0]][self.number_to_coords(helper_mas[k])[1]] = True
+                    if(collections.Counter(self.get_near_close(helper_mas[k])) != collections.Counter(np.zeros(self.l * self.w))):
+                        self.y.append(self.values_known[helper_mas[k]])
+                        self.x.append(self.get_near_close(helper_mas[k]))
+                    for i1 in range(len(self.x)):
+                        self.x[i1][helper_mas[k]] = 0
+                self.delete_equals(i)
+                break
+            elif(counter == self.y[i]):
+                # print('Путь 3')
                 changes = True
                 for k in range(len(helper_mas)):
                     self.values_known[helper_mas[k]] = -1
                     for i1 in range(len(self.x)):
-                        if(self.x[i1][k] == 1):
-                            self.x[i1][k] = 0
-                            self.y[i1] == self.y[i1] - 1
-            elif(self.y[i] == 0):
-                changes = True
-                for k in range(len(helper_mas)):
-                    self.values_known[helper_mas[k]] = self.values_mas[helper_mas[k]]
-                    self.y.append(self.values_known[helper_mas[k]])
-                    self.x.append(self.get_near_close(helper_mas[i]))
-                    for i1 in range(len(self.x)):
-                        self.x[i1][k] = 0
+                        if(self.x[i1][helper_mas[k]] == 1):
+                            self.x[i1][helper_mas[k]] = 0
+                            self.y[i1] = self.y[i1] - 1
+                self.delete_equals(i)
+                break
         return changes
 
 if __name__ == "__main__":
-    my_minesweeper = minesweeper()
+    my_minesweeper = Minesweeper()
 
+    my_minesweeper.load_data()
+    my_minesweeper.get_values_known()
     my_minesweeper.get_coords()
     my_minesweeper.get_near_values()
     my_minesweeper.cutting()
 
-    # print(my_minesweeper.x)
-    # print(my_minesweeper.y)
+    '''
     print(my_minesweeper.matrix_x())
     print(my_minesweeper.y)
+    print(my_minesweeper.matrix_values_known())
     exit(0)
+    '''
 
     counter = 0
-    while(True):
-        if(not my_minesweeper.method1()):
-            break
+    while(len(my_minesweeper.x) != 0):
+        result = my_minesweeper.method1()
         counter = counter + 1
-        print(counter)
+
+    print(my_minesweeper.matrix_values_known())
+
+    '''
+    print(my_minesweeper.matrix_x())
+    print(my_minesweeper.y)
+    print(my_minesweeper.matrix_values_known())
+    print(counter)
+    '''
