@@ -75,6 +75,24 @@ if __name__ == "__main__":
     my_menu = Menu()
     my_menu.load_fields()
 
+    ###
+    my_menu.fields[2].prepare_data()
+    my_menu.fields[2].create_system()
+
+    counter = 0
+    while (len(my_menu.fields[2].x) != 0):
+        print('Step = ', counter)
+        print(my_menu.fields[2].matrix_x())
+        print(my_menu.fields[2].y)
+        print(my_menu.fields[2].matrix_values_known())
+
+        result = my_menu.fields[2].method1()
+        if(not result):
+            break
+        counter = counter + 1
+    ###
+
+    '''
     for i in range(len(my_menu.fields)):
         my_menu.fields[i].load_add_data()
         my_menu.fields[i].get_values_known()
@@ -88,3 +106,4 @@ if __name__ == "__main__":
             counter = counter + 1
 
         print(my_menu.fields[i].matrix_values_known())
+    '''
