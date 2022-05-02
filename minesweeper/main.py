@@ -75,35 +75,47 @@ if __name__ == "__main__":
     my_menu = Menu()
     my_menu.load_fields()
 
-    ###
-    my_menu.fields[2].prepare_data()
-    my_menu.fields[2].create_system()
+    field_number = 11
 
-    counter = 0
-    while (len(my_menu.fields[2].x) != 0):
+    '''
+    my_menu.fields[field_number].prepare_data()
+    my_menu.fields[field_number].create_system()
+
+    counter = 1
+    while (len(my_menu.fields[field_number].x) != 0):
         print('Step = ', counter)
-        print(my_menu.fields[2].matrix_x())
-        print(my_menu.fields[2].y)
-        print(my_menu.fields[2].matrix_values_known())
+        print(my_menu.fields[field_number].matrix_x())
+        print(my_menu.fields[field_number].y)
+        print(my_menu.fields[field_number].matrix_values_known())
 
-        result = my_menu.fields[2].method1()
+        result = my_menu.fields[field_number].method1()
         if(not result):
             break
         counter = counter + 1
-    ###
-
     '''
-    for i in range(len(my_menu.fields)):
-        my_menu.fields[i].load_add_data()
-        my_menu.fields[i].get_values_known()
-        my_menu.fields[i].get_coords()
-        my_menu.fields[i].get_near_values()
-        my_menu.fields[i].cutting()
 
-        counter = 0
+    good_result = 0
+    bad_result = 0
+    for i in range(len(my_menu.fields)):
+        my_menu.fields[i].prepare_data()
+        my_menu.fields[i].create_system()
+
+        counter = 1
         while (len(my_menu.fields[i].x) != 0):
+            print('Step = ', counter)
+            print(my_menu.fields[i].matrix_x())
+            print(my_menu.fields[i].y)
+            print(my_menu.fields[i].matrix_values_known())
+
             result = my_menu.fields[i].method1()
+            if (not result):
+                break
             counter = counter + 1
 
-        print(my_menu.fields[i].matrix_values_known())
-    '''
+        if(my_menu.fields[i].check_result()):
+            good_result = good_result + 1
+        else:
+            bad_result = bad_result + 1
+
+    print('Количество правильно решённых полей: ', good_result)
+    print('Количество неправильно решённых полей: ', bad_result)

@@ -93,7 +93,7 @@ class Minesweeper:
     ##########
     ### Работа с соседними клетками
     # Получить список координат соседних клеток по координате
-    def get_near_values_on_coords(self, i, j):
+    def get_near_on_coords(self, i, j):
         result = []
         if ((i == 0) and (j == 0)):
             result.append((i, j + 1))
@@ -148,9 +148,9 @@ class Minesweeper:
         return result
 
     # Получить список номеров соседних клеток по номеру
-    def get_near_values_on_number(self, number):
+    def get_near_on_number(self, number):
         coords = self.number_to_coords(number)
-        result = self.get_near_values_on_coords(coords)
+        result = self.get_near_on_coords(coords[0], coords[1])
 
         result1 = []
         for i in range(len(result)):
@@ -158,26 +158,49 @@ class Minesweeper:
 
         return result1
 
-    # Получить список соседних закрытых клеток по номеру (уравнение)
-    def get_near_close(self, number):
-        c = self.number_to_coords(number)
-        result = self.get_near_values_on_coords(c[0], c[1])
+    # Получить список соседних закрытых клеток по номеру
+    def get_near_close_on_number(self, number):
+        near = self.get_near_on_number(number)
 
-        result1 = []
-        for i in range(len(result)):
-            if((self.status[result[i][0]][result[i][1]] == False) and (self.values_known[self.coords_to_number(result[i])] != -1)):
-                result1.append(result[i])
-        result2 = self.coords_list_to_numbers_list(result1)
+        near_close = []
+        for i in range(len(near)):
+            if(not self.status_mas[near[i]]):
+                near_close.append(near[i])
 
-        list_x = np.zeros(self.l * self.w)
-        for i in range(len(result2)):
-            list_x[result2[i]] = 1
+        return near_close
 
-        return list_x
+    # Получить уравнение по номеру
+    def get_equal(self, number):
+        c = self.number_to_coords(number) # Получаем координату по номеру
+        coords_near = self.get_near_on_coords(c[0], c[1]) # Получаем координаты соседних клеток по координате
+
+        # Получаем список координат соседних закрытых клеток без флага мины
+        ################### Получаем список координат соседних закрытых клеток
+        coords_x = []
+        mines_counter = 0
+        for i in range(len(coords_near)):
+            if((self.status[coords_near[i][0]][coords_near[i][1]] == False) and (self.values_known[self.coords_to_number(coords_near[i])] != -1)):
+            # if (self.status[coords_near[i][0]][coords_near[i][1]] == False):
+                coords_x.append(coords_near[i])
+            if(self.values_known[self.coords_to_number(coords_near[i])] == -1):
+                mines_counter = mines_counter + 1
+
+        # Конвертируем список координат в список номеров
+        numbers_x = self.coords_list_to_numbers_list(coords_x)
+
+        # Конвертирование списка номеров в уравнение (x)
+        x = np.zeros(self.l * self.w)
+        for i in range(len(numbers_x)):
+            x[numbers_x[i]] = 1
+
+        # Получаем значение y за вычетом количества соседних клеток с флагом мины
+        y = self.true_values_mas[number] - mines_counter
+
+        return x, y
 
     # Получить количество найденных мин в соседних клетках по номеру
-    def get_near_mines(self, number):
-        near = self.get_near_values_on_number(number)
+    def get_near_mines_on_number(self, number):
+        near = self.get_near_on_number(number)
 
         counter = 0
         for i in range(len(near)):
@@ -196,7 +219,7 @@ class Minesweeper:
             for j in range(self.w):
                 helper_unknown = list(np.zeros((self.l, self.w)))
 
-                result = self.get_near_values_on_coords(i, j)
+                result = self.get_near_on_coords(i, j)
                 for k in range(len(result)):
                     if(not self.status[result[k][0]][result[k][1]]):
                         helper_unknown[result[k][0]][result[k][1]] = 1
@@ -250,16 +273,31 @@ class Minesweeper:
     def add_equals(self, mas):
         for i in range(len(mas)):
             if(self.true_values_mas[mas[i]] == 0):
-                # Открыть все соседние клетки
-                # Получаем список номеров соседних клеток
-                near_numbers = self.get_near_values_on_number(mas[i])
+                ### Открыть все соседние клетки
+                # Получаем список номеров соседних закрытых клеток
+                near_close = self.get_near_close_on_number(mas[i])
 
-                # Открыть все соседние клетки
-                for j in range(len(near_numbers)):
-                    self.opening_cell(near_numbers[j])
+                # Открыть все соседние закрытые клетки
+                for j in range(len(near_close)):
+                    self.opening_cell(near_close[j])
 
-            elif(not self.true_values_mas[mas[i]] - self.get_near_mines(mas[i]) == 0):
+                print(self.matrix_values_known())
 
+                # Для каждой соседней открываемой клетки применить текущий метод
+                self.add_equals(near_close)
+            #elif(not self.true_values_mas[mas[i]] - self.get_near_mines_on_number(mas[i]) == 0):
+            else:
+                x, y = self.get_equal(mas[i])
+
+                if (collections.Counter(x) != collections.Counter(np.zeros(self.l * self.w))):
+                    self.x.append(x)
+                    self.y.append(y)
+
+                print('Добавлено уравнение для координаты ', self.number_to_coords(mas[i]))
+                print('Обновлённый x = ')
+                print(self.matrix_x())
+                print('Обновлённый y = ', self.y)
+                print(self.matrix_values_known())
 
     # Открытие клетки
     def opening_cell(self, number):
@@ -275,58 +313,81 @@ class Minesweeper:
         changes = False
         for i in range(len(self.x)):
             counter = 0
-            helper_mas = []
+            mas_numbers_ones = []
+
+            # Определяем количество единиц в уравнении
             for j in range(len(self.x[i])):
                 counter = counter + self.x[i][j]
                 if(self.x[i][j] == 1):
-                    helper_mas.append(j)
+                    mas_numbers_ones.append(j)
 
-            if((self.y[i] == 0) and (len(helper_mas) == 0)):
-                print('Путь 1')
+            # Если число в клетке 0 и количество соседних закрытых клеток 0, то просто удаляем уравнение из системы
+            if((self.y[i] == 0) and (len(mas_numbers_ones) == 0)):
+                print('Число в клетке 0. Количество соседних закрытых клеток 0')
                 changes = True
                 self.delete_equals(i)
                 break
-            elif((self.y[i] == 0) and (len(helper_mas) > 0)):
-                print('Путь 2')
+            # Если число в клетке 0, а количество соседних закрытых клеток без флага мины больше 0
+            elif((self.y[i] == 0) and (len(mas_numbers_ones) > 0)):
+                print('Число в клетке 0. Количество соседних закрытых клеток без флага мины больше 0')
                 changes = True
 
                 # Открываем клетки
-                for k in range(len(helper_mas)):
-                    self.opening_cell(helper_mas[k])
+                for k in range(len(mas_numbers_ones)):
+                    self.opening_cell(mas_numbers_ones[k])
 
-                for k in range(len(helper_mas)):
+                # Обнуляем соответствующие столбцы матрицы
+                for k in range(len(mas_numbers_ones)):
                     for i1 in range(len(self.x)):
-                        self.x[i1][helper_mas[k]] = 0
+                        self.x[i1][mas_numbers_ones[k]] = 0
 
-                for k in range(len(helper_mas)):
-                    if(collections.Counter(self.get_near_close(helper_mas[k])) != collections.Counter(np.zeros(self.l * self.w))):
+                print(self.matrix_values_known())
+
+                # Добавление уравнений в систему
+                self.add_equals(mas_numbers_ones)
+
+                '''
+                for k in range(len(mas_numbers_ones)):
+                    if(collections.Counter(self.get_equal(mas_numbers_ones[k])) != collections.Counter(np.zeros(self.l * self.w))):
                         print('Добавлено уравнение')
-                        print('y = ', self.values_known[helper_mas[k]])
+                        print('y = ', self.values_known[mas_numbers_ones[k]])
                         print('x = ')
-                        print(np.resize(self.get_near_close(helper_mas[k]), (self.l, self.w)))
+                        print(np.resize(self.get_equal(mas_numbers_ones[k]), (self.l, self.w)))
 
-                        self.y.append(self.values_known[helper_mas[k]])
-                        self.x.append(self.get_near_close(helper_mas[k]))
+                        self.y.append(self.values_known[mas_numbers_ones[k]])
+                        self.x.append(self.get_equal(mas_numbers_ones[k]))
 
                         print('Обновлённый x = ')
                         print(self.matrix_x())
                         print('Обновлённый y = ', self.y)
+                '''
 
                 self.delete_equals(i)
                 break
+            # Если число в клетке равно количеству соседних закрытых клеток
             elif(counter == self.y[i]):
-                print('Путь 3')
+                print('Число в клетке равно количеству соседних закрытых клеток')
                 changes = True
-                for k in range(len(helper_mas)):
-                    self.values_known[helper_mas[k]] = -1
+                for k in range(len(mas_numbers_ones)):
+                    self.values_known[mas_numbers_ones[k]] = -1
                     for i1 in range(len(self.x)):
-                        if(self.x[i1][helper_mas[k]] == 1):
-                            self.x[i1][helper_mas[k]] = 0
+                        if(self.x[i1][mas_numbers_ones[k]] == 1):
+                            self.x[i1][mas_numbers_ones[k]] = 0
                             self.y[i1] = self.y[i1] - 1
                 self.delete_equals(i)
                 break
         return changes
     ##########
+
+    # Проверка правильности решения поля
+    def check_result(self):
+        result = True
+        for i in range(len(self.true_values_mas)):
+            if(self.true_values_mas[i] != self.values_known[i]):
+                result = False
+                break
+
+        return result
 
 if __name__ == "__main__":
     my_minesweeper = Minesweeper()
