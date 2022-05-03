@@ -255,7 +255,7 @@ class Minesweeper:
         self.x = copy.copy(x2)
         self.y = copy.copy(y2)
 
-    # Удаление из системы уравнений уравнения с заданным номером
+    # Удаление из системы уравнений уравнения с заданными номерами
     def delete_equals(self, n):
         mas_n = [n]
         x1 = list(np.delete(self.x, mas_n, axis=0))
@@ -308,7 +308,7 @@ class Minesweeper:
 
     ##########
     ### Реализация методов решения системы уравнений
-    # Реализация метода 1
+    # Реализация метода 1 (однозначное вычисление значений в закрытых клетках)
     def method1(self):
         changes = False
         for i in range(len(self.x)):
@@ -346,22 +346,6 @@ class Minesweeper:
                 # Добавление уравнений в систему
                 self.add_equals(mas_numbers_ones)
 
-                '''
-                for k in range(len(mas_numbers_ones)):
-                    if(collections.Counter(self.get_equal(mas_numbers_ones[k])) != collections.Counter(np.zeros(self.l * self.w))):
-                        print('Добавлено уравнение')
-                        print('y = ', self.values_known[mas_numbers_ones[k]])
-                        print('x = ')
-                        print(np.resize(self.get_equal(mas_numbers_ones[k]), (self.l, self.w)))
-
-                        self.y.append(self.values_known[mas_numbers_ones[k]])
-                        self.x.append(self.get_equal(mas_numbers_ones[k]))
-
-                        print('Обновлённый x = ')
-                        print(self.matrix_x())
-                        print('Обновлённый y = ', self.y)
-                '''
-
                 self.delete_equals(i)
                 break
             # Если число в клетке равно количеству соседних закрытых клеток
@@ -378,6 +362,130 @@ class Minesweeper:
                 break
         return changes
     ##########
+
+    # Реализация метода 2 (вычитание уравнений по их номеру в системе)
+    def method2(self, equal1, equal2):
+        result = False
+
+        # Получение разности двух уравнений
+        delta_x = []
+        delta_y = 0
+        delta = 0
+        ones_numbers = []
+        minus_ones_numbers = []
+        for i in range(len(self.x[equal1])):
+            delta = self.x[equal1][i] - self.x[equal2][i]
+            delta_x.append(delta)
+            if(delta == 1):
+                ones_numbers.append(i)
+            elif(delta == -1):
+                minus_ones_numbers.append(i)
+        delta_y = self.y[equal1] - self.y[equal2]
+
+        if(len(ones_numbers) == delta_y):
+            result = True
+        elif(len(minus_ones_numbers) == -delta_y):
+            result = True
+
+            helper = copy.copy(ones_numbers)
+            ones_numbers = copy.copy(minus_ones_numbers)
+            minus_ones_numbers = copy.copy(helper)
+
+        if(result):
+            # Обозначаем клетки с минами
+            for i in range(len(ones_numbers)):
+                for j in range(len(self.x)):
+                    if(self.x[j][ones_numbers[i]] == 1):
+                        self.x[j][ones_numbers[i]] = 0
+                        self.y[j] = self.y[j] - 1
+
+            ### Обозначаем клетки без мин
+            # Открываем клетки
+            for k in range(len(minus_ones_numbers)):
+                self.opening_cell(minus_ones_numbers[k])
+
+            # Обнуляем соответствующие столбцы матрицы
+            for k in range(len(minus_ones_numbers)):
+                for i1 in range(len(self.x)):
+                    self.x[i1][minus_ones_numbers[k]] = 0
+
+            # Добавление уравнений в систему
+            self.add_equals(minus_ones_numbers)
+
+            # Удаление уравнений из системы
+            if(equal1 < equal2):
+                self.delete_equals(equal2)
+                self.delete_equals(equal1)
+            else:
+                self.delete_equals(equal1)
+                self.delete_equals(equal2)
+
+        return result
+
+    # Реализация метода 3 (вычитание уравнений с применением уравнения с суммой общего количества мин)
+    def method3(self, equal):
+        # Получаем уравнение с общим количеством мин
+        x = list(np.zeros(self.l * self.w))
+
+        mines_counter = 0
+        for i in range(len(self.values_known)):
+            if(not self.status_mas[i]):
+                if(self.values_known[i] != -1):
+                    x[i] = 1
+                else:
+                    mines_counter = mines_counter + 1
+
+        y = self.count_of_mines - mines_counter
+
+        # Получение разности двух уравнений
+        delta_x = []
+        delta_y = 0
+        delta = 0
+        ones_numbers = []
+        minus_ones_numbers = []
+        for i in range(len(self.x[equal])):
+            delta = x[i] - self.x[equal][i]
+            delta_x.append(delta)
+            if(delta == 1):
+                ones_numbers.append(i)
+            elif(delta == -1):
+                minus_ones_numbers.append(i)
+        delta_y = y - self.y[equal]
+
+        if(len(ones_numbers) == delta_y):
+            result = True
+        elif(len(minus_ones_numbers) == -delta_y):
+            result = True
+
+            helper = copy.copy(ones_numbers)
+            ones_numbers = copy.copy(minus_ones_numbers)
+            minus_ones_numbers = copy.copy(helper)
+
+        if(result):
+            # Обозначаем клетки с минами
+            for i in range(len(ones_numbers)):
+                for j in range(len(self.x)):
+                    if(self.x[j][ones_numbers[i]] == 1):
+                        self.x[j][ones_numbers[i]] = 0
+                        self.y[j] = self.y[j] - 1
+
+            ### Обозначаем клетки без мин
+            # Открываем клетки
+            for k in range(len(minus_ones_numbers)):
+                self.opening_cell(minus_ones_numbers[k])
+
+            # Обнуляем соответствующие столбцы матрицы
+            for k in range(len(minus_ones_numbers)):
+                for i1 in range(len(self.x)):
+                    self.x[i1][minus_ones_numbers[k]] = 0
+
+            # Добавление уравнений в систему
+            self.add_equals(minus_ones_numbers)
+
+            # Удаление уравнения из системы
+            self.delete_equals(equal)
+
+        return result
 
     # Проверка правильности решения поля
     def check_result(self):

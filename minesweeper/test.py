@@ -17,5 +17,10 @@ def test1():
     print(type(list(s2)))
 
     s1.append(0)
+def test2():
+    test_num = 0
+    res = [int(i) for i in list('{0:0b}'.format(test_num))]
+    print("The converted binary list is : " + str(res))
 
-test1()
+# test1()
+test2()
