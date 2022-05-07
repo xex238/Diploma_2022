@@ -75,9 +75,9 @@ if __name__ == "__main__":
     my_menu = Menu()
     my_menu.load_fields()
 
+    '''
     field_number = 11
 
-    '''
     my_menu.fields[field_number].prepare_data()
     my_menu.fields[field_number].create_system()
 
@@ -102,12 +102,14 @@ if __name__ == "__main__":
 
         counter = 1
         while (len(my_menu.fields[i].x) != 0):
+            '''
             print('Step = ', counter)
             print(my_menu.fields[i].matrix_x())
             print(my_menu.fields[i].y)
             print(my_menu.fields[i].matrix_values_known())
+            '''
 
-            result = my_menu.fields[i].method1()
+            result, _ = my_menu.fields[i].method1()
             if (not result):
                 break
             counter = counter + 1
