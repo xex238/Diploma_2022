@@ -1,6 +1,7 @@
 import numpy as np
 import collections
 import copy
+import time
 
 def test1():
     s1 = [0, 0, 0, 0]
@@ -82,6 +83,76 @@ def test11():
     result = [s1, s2, s3, s4]
     result_tuple = tuple(result)
     print(result_tuple)
+def test12():
+    l = 30
+    w = 30
+    a1 = np.zeros((l, w))
+    a2 = np.zeros((l, w))
+    a1[0][0] = 1
+    a1[0][1] = 1
+    a1[0][2] = 1
+    a1[1][0] = 1
+    a1[2][0] = 1
+
+    a2[0][0] = 1
+    a2[0][1] = 1
+    a2[1][0] = 1
+
+    counter = 1000000
+    start_time = time.time()
+    for i in range(counter):
+        a3 = a1 - a2
+    end_time = time.time()
+    print('Время работы программы: ', end_time - start_time)
+
+    a1 = np.zeros((3, 3))
+    a2 = np.zeros((3, 3))
+    a1[0][0] = 1
+    a1[0][1] = 1
+    a1[0][2] = 1
+    a1[1][0] = 1
+    a1[2][0] = 1
+
+    a2[0][0] = 1
+    a2[0][1] = 1
+    a2[1][0] = 1
+
+    start_time = time.time()
+    for i in range(counter):
+        a3 = a1 - a2
+    end_time = time.time()
+    print('Время работы программы: ', end_time - start_time)
+def get_connect_cell(i1, i2, j1, j2, k1, k2):
+
+def test13():
+    i1 = 5
+    j1 = 6
+    k1 = np.zeros((3, 3))
+    k1[0][2] = 1
+    k1[1][2] = 1
+    k1[2][2] = 1
+    voc1 = 2
+
+    i2 = 5
+    j2 = 8
+    k2 = np.zeros((3, 3))
+    k2[0][0] = 1
+    k2[1][0] = 1
+    k2[2][0] = 1
+    voc2 = 2
+
+    delta_i = i1 - i2
+    delta_j = j1 - j2
+    if abs(delta_i) <= 2 and abs(delta_j) <= 2:
+        voc = abs(voc1 - voc2)
+        coords = []
+        values1 = []
+        for i in range(-delta_i, 3):
+            for j in range(-delta_j, 3):
+                coords.append([i1 - 1 + i, j1 - 1 + j])
+                values1.append(k1[i][j])
+        for i in range()
+
 
 class class1:
     def __init__(self):
@@ -111,7 +182,8 @@ class class1:
 # test8()
 # test9()
 # test10()
-test11()
+# test11()
+test12()
 
 '''
 my_class = class1()
