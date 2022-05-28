@@ -2,6 +2,8 @@ import numpy as np
 import collections
 import copy
 import time
+import matplotlib.pyplot as plt
+# import matplotlib
 
 def test1():
     s1 = [0, 0, 0, 0]
@@ -122,7 +124,6 @@ def test12():
         a3 = a1 - a2
     end_time = time.time()
     print('Время работы программы: ', end_time - start_time)
-def get_connect_cell(i1, i2, j1, j2, k1, k2):
 
 def test13():
     i1 = 5
@@ -151,8 +152,20 @@ def test13():
             for j in range(-delta_j, 3):
                 coords.append([i1 - 1 + i, j1 - 1 + j])
                 values1.append(k1[i][j])
-        for i in range()
+def draw_graphics():
+    rng = np.arange(50)
+    rnd = np.random.randint(0, 10, size=(3, rng.size))
+    yrs = 1950 + rng
 
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.stackplot(yrs, rng + rnd, labels=['Eastasia', 'Eurasia', 'Oceania'])
+    ax.set_title('Combined debt growth over time')
+    ax.legend(loc='upper left')
+    ax.set_ylabel('Total debt')
+    ax.set_xlim(xmin=yrs[0], xmax=yrs[-1])
+    fig.tight_layout()
+
+    plt.show()
 
 class class1:
     def __init__(self):
@@ -183,7 +196,8 @@ class class1:
 # test9()
 # test10()
 # test11()
-test12()
+# test12()
+draw_graphics()
 
 '''
 my_class = class1()
