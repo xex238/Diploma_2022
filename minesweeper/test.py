@@ -4,6 +4,8 @@ import copy
 import time
 import matplotlib.pyplot as plt
 # import matplotlib
+import random
+import xlrd
 
 def test1():
     s1 = [0, 0, 0, 0]
@@ -152,10 +154,97 @@ def test13():
             for j in range(-delta_j, 3):
                 coords.append([i1 - 1 + i, j1 - 1 + j])
                 values1.append(k1[i][j])
+def test14():
+    print(random.random() * 3 + 1)
+
+# Считывание данных для отрисовки графика с накоплением для вычисления доли применения методов для каждого поля
+def xlsx_open():
+    # Open the Workbook
+    workbook = xlrd.open_workbook("data2.xlsx")
+
+    # Open the worksheet
+    worksheet = workbook.sheet_by_index(0)
+
+    method1 = []
+    method2 = []
+    method3 = []
+    method4 = []
+
+    # Iterate the rows and columns
+    for i in range(1, 1076):
+        method1.append(worksheet.cell_value(i, 1))
+        method2.append(worksheet.cell_value(i, 2))
+        method3.append(worksheet.cell_value(i, 3))
+        method4.append(worksheet.cell_value(i, 4))
+        for j in range(1, 5):
+            # Print the cell values with tab space
+            print(worksheet.cell_value(i, j), end='\t')
+        print('')
+
+    result = []
+    result.append(np.array(method1))
+    result.append(np.array(method2))
+    result.append(np.array(method3))
+    result.append(np.array(method4))
+
+    result1 = np.array(result)
+    # print(result1)
+
+    return result1
+# Считывание данных для отрисовки графика со временем поиска решения для каждого моля только с применением методов
+def xlsx_open2():
+    # Open the Workbook
+    workbook = xlrd.open_workbook("data31.xlsx")
+
+    # Open the worksheet
+    worksheet = workbook.sheet_by_index(0)
+
+    method1 = []
+
+    # Iterate the rows and columns
+    for i in range(0, 1075):
+        method1.append(worksheet.cell_value(i, 0))
+
+    return method1
+# Считывание данных для отрисовки графика со временем поиска решения для каждого моля только с применением схем
+def xlsx_open3():
+    # Open the Workbook
+    workbook = xlrd.open_workbook("data4.xlsx")
+
+    # Open the worksheet
+    worksheet = workbook.sheet_by_index(0)
+
+    method1 = []
+
+    # Iterate the rows and columns
+    for i in range(0, 1075):
+        method1.append(worksheet.cell_value(i, 0))
+
+    return method1
+# Считывание данных для отрисовки графика со временем поиска решения для каждого моля с применением методов и схем
+def xlsx_open4():
+    # Open the Workbook
+    workbook = xlrd.open_workbook("data5.xlsx")
+
+    # Open the worksheet
+    worksheet = workbook.sheet_by_index(0)
+
+    method1 = []
+
+    # Iterate the rows and columns
+    for i in range(0, 1075):
+        method1.append(worksheet.cell_value(i, 0))
+
+    return method1
+
+
+# Отрисовка тестового графика
 def draw_graphics():
     rng = np.arange(50)
     rnd = np.random.randint(0, 10, size=(3, rng.size))
     yrs = 1950 + rng
+
+    print(rnd)
 
     fig, ax = plt.subplots(figsize=(5, 3))
     ax.stackplot(yrs, rng + rnd, labels=['Eastasia', 'Eurasia', 'Oceania'])
@@ -166,6 +255,71 @@ def draw_graphics():
     fig.tight_layout()
 
     plt.show()
+# Отрисовка графика с накоплением для вычисления доли применения методов для каждого поля
+def draw_graphics2(y):
+    x = np.arange(1075)
+
+    sum = np.zeros(len(y[0]))
+    for i in range(len(y)):
+        for j in range(len(y[i])):
+            sum[j] += y[i][j]
+
+    for i in range(len(sum)):
+        sum[i] = 100 / sum[i]
+
+    for i in range(len(y)):
+        for j in range(len(y[i])):
+            y[i][j] = y[i][j] * sum[j]
+
+    fig, ax = plt.subplots(figsize=(12, 9))
+    ax.stackplot(x, y, labels=['Метод однозначного определения значений в соседних клетках', 'Метод связанных клеток 1', 'Метод гипотез', 'Метод связанных клеток 2'])
+    ax.set_title('Процент применённых методов')
+    ax.legend(loc='upper left')
+    ax.set_ylabel('Всего')
+    ax.set_xlim(xmin=x[0], xmax=x[-1])
+    fig.tight_layout()
+
+    plt.show()
+# Отрисовка графика со временем поиска решения для каждого моля только с применением методов
+def draw_graphics3(y):
+    x = np.arange(1075)
+
+    fig, ax = plt.subplots(figsize=(12, 9))
+    ax.stackplot(x, y)
+    ax.set_title('Время поиска решения с применением методов')
+    ax.legend(loc='upper left')
+    ax.set_ylabel('Секунды')
+    ax.set_xlim(xmin=x[0], xmax=x[-1])
+    fig.tight_layout()
+
+    plt.show()
+# Отрисовка графика со временем поиска решения для каждого моля только с применением схем
+def draw_graphics4(y):
+    x = np.arange(1075)
+
+    fig, ax = plt.subplots(figsize=(12, 9))
+    ax.stackplot(x, y)
+    ax.set_title('Время поиска решения с применением схем')
+    ax.legend(loc='upper left')
+    ax.set_ylabel('Секунды')
+    ax.set_xlim(xmin=x[0], xmax=x[-1])
+    fig.tight_layout()
+
+    plt.show()
+# Отрисовка графика со временем поиска решения для каждого моля с применением методов и схем
+def draw_graphics5(y):
+    x = np.arange(1075)
+
+    fig, ax = plt.subplots(figsize=(12, 9))
+    ax.stackplot(x, y)
+    ax.set_title('Время поиска решения с применением методов и схем')
+    ax.legend(loc='upper left')
+    ax.set_ylabel('Секунды')
+    ax.set_xlim(xmin=x[0], xmax=x[-1])
+    fig.tight_layout()
+
+    plt.show()
+
 
 class class1:
     def __init__(self):
@@ -197,7 +351,27 @@ class class1:
 # test10()
 # test11()
 # test12()
-draw_graphics()
+
+'''
+result = xlsx_open()
+draw_graphics2(result)
+'''
+
+'''
+result = xlsx_open2()
+draw_graphics3(result)
+'''
+
+'''
+result = xlsx_open3()
+draw_graphics4(result)
+'''
+
+result = xlsx_open4()
+draw_graphics5(result)
+
+# draw_graphics()
+#test14()
 
 '''
 my_class = class1()
