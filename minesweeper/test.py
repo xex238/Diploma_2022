@@ -272,10 +272,11 @@ def draw_graphics2(y):
             y[i][j] = y[i][j] * sum[j]
 
     fig, ax = plt.subplots(figsize=(12, 9))
-    ax.stackplot(x, y, labels=['Метод однозначного определения значений в соседних клетках', 'Метод связанных клеток 1', 'Метод гипотез', 'Метод связанных клеток 2'])
-    ax.set_title('Процент применённых методов')
-    ax.legend(loc='upper left')
-    ax.set_ylabel('Всего')
+    ax.stackplot(x, y, labels=['Процедура 1', 'Процедура 2', 'Процедура 4', 'Процедура 3'])
+    ax.set_title('Процент применённых процедур', fontsize = 'xx-large')
+    ax.legend(loc='upper right', fontsize = 'xx-large')
+    ax.set_xlabel('Порядковый номер поля', fontsize = 'xx-large')
+    ax.set_ylabel('%', fontsize = 'xx-large')
     ax.set_xlim(xmin=x[0], xmax=x[-1])
     fig.tight_layout()
 
@@ -286,9 +287,10 @@ def draw_graphics3(y):
 
     fig, ax = plt.subplots(figsize=(12, 9))
     ax.stackplot(x, y)
-    ax.set_title('Время поиска решения с применением методов')
+    ax.set_title('Время поиска решения с применением процедур', fontsize = 'xx-large')
     ax.legend(loc='upper left')
-    ax.set_ylabel('Секунды')
+    ax.set_xlabel('Порядковый номер поля', fontsize = 'xx-large')
+    ax.set_ylabel('Секунды', fontsize = 'xx-large')
     ax.set_xlim(xmin=x[0], xmax=x[-1])
     fig.tight_layout()
 
@@ -299,9 +301,10 @@ def draw_graphics4(y):
 
     fig, ax = plt.subplots(figsize=(12, 9))
     ax.stackplot(x, y)
-    ax.set_title('Время поиска решения с применением схем')
+    ax.set_title('Время поиска решения с применением схем', fontsize = 'xx-large')
     ax.legend(loc='upper left')
-    ax.set_ylabel('Секунды')
+    ax.set_xlabel('Порядковый номер поля', fontsize = 'xx-large')
+    ax.set_ylabel('Секунды', fontsize = 'xx-large')
     ax.set_xlim(xmin=x[0], xmax=x[-1])
     fig.tight_layout()
 
@@ -312,7 +315,7 @@ def draw_graphics5(y):
 
     fig, ax = plt.subplots(figsize=(12, 9))
     ax.stackplot(x, y)
-    ax.set_title('Время поиска решения с применением методов и схем')
+    ax.set_title('Время поиска решения с применением процедур и схем')
     ax.legend(loc='upper left')
     ax.set_ylabel('Секунды')
     ax.set_xlim(xmin=x[0], xmax=x[-1])
@@ -362,13 +365,15 @@ result = xlsx_open2()
 draw_graphics3(result)
 '''
 
-'''
+
 result = xlsx_open3()
 draw_graphics4(result)
-'''
 
+
+'''
 result = xlsx_open4()
 draw_graphics5(result)
+'''
 
 # draw_graphics()
 #test14()
